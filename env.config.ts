@@ -10,15 +10,15 @@ interface TestConfig extends PlaywrightTestConfig {
 }
 
 const devConfig: TestConfig = {
-  baseUrl: "",
-  username: "",
-  password: "",
+  baseUrl: "http://localhost:3000",
+  username: "admin",
+  password: "password",
 };
 
 const prodConfig: TestConfig = {
-  baseUrl: "",
+  baseUrl: "http://localhost:3000",
   username: "admin",
-  password: "",
+  password: "password",
 };
 
 // get the environment type from command line. If none, set it to default
