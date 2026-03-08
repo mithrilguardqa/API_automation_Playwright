@@ -1,0 +1,27 @@
+{
+  "name": "api_testing_playwright",
+  "author": "Mithril Guard QA Company",
+  "version": "1.0.0",
+  "description": "Mithril Guard Company API testing framework with Playwright",
+  "main": "index.js",
+  "scripts": {
+    "clean-install": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + ; npm install"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.3.5",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "dotenv": "^17.2.4",
+    "eslint": "^9.39.2",
+    "eslint-plugin-import": "^2.32.0",
+    "form-data": "^4.0.5",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "zod": "^4.3.6"
+  }
+}
