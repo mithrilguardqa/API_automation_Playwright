@@ -10,15 +10,15 @@ interface TestConfig extends PlaywrightTestConfig {
 }
 
 const devConfig: TestConfig = {
-  baseUrl: "https://restful-booker.herokuapp.com",
-  username: "admin",
-  password: "password123",
+  baseUrl: "",
+  username: "",
+  password: "",
 };
 
 const prodConfig: TestConfig = {
-  baseUrl: "https://prod.restful-booker.herokuapp.com",
+  baseUrl: "",
   username: "admin",
-  password: "password123",
+  password: "",
 };
 
 // get the environment type from command line. If none, set it to default
