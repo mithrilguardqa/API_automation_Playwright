@@ -4,8 +4,23 @@ import { store } from "../data/store.js";
 import { sendValidationError, validateRequired, validateTypes } from "../middleware/validation.js";
 import type { LapRecord } from "../models/types.js";
 
+function toRecordResponse(record: LapRecord) {
+  const user = store.users.get(record.userId);
+  const car = store.cars.get(record.carId);
+  const track = store.tracks.get(record.trackId);
+
+  return {
+    id: record.id,
+    username: user?.username ?? record.userId,
+    car: car ? `${car.name} ${car.model}` : record.carId,
+    track: track?.name ?? record.trackId,
+    lapTime: record.lapTime,
+    date: record.date,
+  };
+}
+
 export function list(_req: Request, res: Response): void {
-  const records = recordsService.getAllRecords();
+  const records = recordsService.getAllRecords().map(toRecordResponse);
   res.status(200).json(records);
 }
 
@@ -16,7 +31,7 @@ export function getById(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Record with id '${id}' not found` });
     return;
   }
-  res.status(200).json(record);
+  res.status(200).json(toRecordResponse(record));
 }
 
 export function create(req: Request, res: Response): void {
@@ -51,7 +66,7 @@ export function create(req: Request, res: Response): void {
   }
   try {
     const record = recordsService.createRecord(req.body as Omit<LapRecord, "id">);
-    res.status(201).json(record);
+    res.status(201).json(toRecordResponse(record));
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error", message: "Failed to create record" });
   }
@@ -88,7 +103,7 @@ export function update(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Record with id '${id}' not found` });
     return;
   }
-  res.status(200).json(record);
+  res.status(200).json(toRecordResponse(record));
 }
 
 export function remove(req: Request, res: Response): void {

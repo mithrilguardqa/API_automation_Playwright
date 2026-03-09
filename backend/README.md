@@ -27,6 +27,28 @@ Server runs at **http://localhost:3000**.
 
 ---
 
+## Visual API testing (like Postman)
+
+Two ways to explore the API with a UI:
+
+### 1. Swagger UI (in the browser, no install)
+
+With the server running, open:
+
+**http://localhost:3000/docs**
+
+You get an interactive doc: expand an endpoint → **Try it out** → edit the body (if needed) → **Execute**.  
+**Tip:** Run **Auth → Login** first so the session cookie is set; then other endpoints will work.
+
+### 2. Postman or Thunder Client (import collection)
+
+- **Postman:** [postman.com](https://www.postman.com/downloads/) → Import → choose `backend/postman/Racing-API.postman_collection.json`.
+- **Thunder Client** (VS Code/Cursor): Install the “Thunder Client” extension → New Request → Import → choose the same file.
+
+Collection variable `baseUrl` is set to `http://localhost:3000`. Send **Auth → Login** first; then use any other request (cookies are sent automatically).
+
+---
+
 ## Authentication
 
 **Login**
@@ -81,47 +103,150 @@ All of these require a valid session cookie (send `-b cookies.txt` with curl aft
 
 ---
 
-## Example requests (after login)
+## CRUD: Add, edit, delete data
 
-**List users**
+Use these after logging in (so you have `cookies.txt`). Replace `cookies.txt` with `-b cookies.txt` in every request.
 
+### Users
+
+| Action | Method | Endpoint | Body (JSON) |
+|--------|--------|----------|-------------|
+| List all | `GET` | `/users` | — |
+| Get one | `GET` | `/users/:id` | — |
+| Create | `POST` | `/users` | `username`, `password`, `email` |
+| Update | `PUT` | `/users/:id` | any of: `username`, `password`, `email` |
+| Delete | `DELETE` | `/users/:id` | — |
+
+**Create user**
 ```bash
-curl -b cookies.txt http://localhost:3000/users
+curl -X POST http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"username":"newuser","password":"secret","email":"new@racing.local"}'
 ```
 
-**Get one user**
-
+**Update user** (e.g. change email)
 ```bash
-curl -b cookies.txt http://localhost:3000/users/a0000001-0000-4000-8000-000000000001
+curl -X PUT http://localhost:3000/users/usr001 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"email":"admin-new@racing.local"}'
 ```
 
-**Create a car**
+**Delete user**
+```bash
+curl -X DELETE http://localhost:3000/users/usr003 -b cookies.txt
+```
 
+---
+
+### Cars
+
+| Action | Method | Endpoint | Body (JSON) |
+|--------|--------|----------|-------------|
+| List all | `GET` | `/cars` | — |
+| Get one | `GET` | `/cars/:id` | — |
+| Create | `POST` | `/cars` | `userId`, `name`, `model`, `year` |
+| Update | `PUT` | `/cars/:id` | any of: `userId`, `name`, `model`, `year` |
+| Delete | `DELETE` | `/cars/:id` | — |
+
+**Create car** (`userId` must be an existing user id, e.g. `usr001`)
 ```bash
 curl -X POST http://localhost:3000/cars \
   -H "Content-Type: application/json" \
   -b cookies.txt \
-  -d '{"userId":"a0000001-0000-4000-8000-000000000001","name":"Rocket","model":"X1","year":2025}'
+  -d '{"userId":"usr001","name":"Rocket","model":"X1","year":2025}'
 ```
 
-**Create a record**
+**Update car**
+```bash
+curl -X PUT http://localhost:3000/cars/crs001 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"name":"Thunder II","year":2025}'
+```
 
+**Delete car**
+```bash
+curl -X DELETE http://localhost:3000/cars/crs005 -b cookies.txt
+```
+
+---
+
+### Tracks
+
+| Action | Method | Endpoint | Body (JSON) |
+|--------|--------|----------|-------------|
+| List all | `GET` | `/tracks` | — |
+| Get one | `GET` | `/tracks/:id` | — |
+| Create | `POST` | `/tracks` | `name`, `country`, `lengthKm` |
+| Update | `PUT` | `/tracks/:id` | any of: `name`, `country`, `lengthKm` |
+| Delete | `DELETE` | `/tracks/:id` | — |
+
+**Create track**
+```bash
+curl -X POST http://localhost:3000/tracks \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"name":"Brands Hatch","country":"UK","lengthKm":3.908}'
+```
+
+**Update track**
+```bash
+curl -X PUT http://localhost:3000/tracks/trk001 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"lengthKm":5.9}'
+```
+
+**Delete track**
+```bash
+curl -X DELETE http://localhost:3000/tracks/trk005 -b cookies.txt
+```
+
+---
+
+### Records (lap times)
+
+| Action | Method | Endpoint | Body (JSON) |
+|--------|--------|----------|-------------|
+| List all | `GET` | `/records` | — |
+| Get one | `GET` | `/records/:id` | — |
+| Create | `POST` | `/records` | `userId`, `carId`, `trackId`, `lapTime`, `date` |
+| Update | `PUT` | `/records/:id` | any of: `userId`, `carId`, `trackId`, `lapTime`, `date` |
+| Delete | `DELETE` | `/records/:id` | — |
+
+`userId`, `carId`, and `trackId` must exist. `date` format: `"YYYY-MM-DD"`.
+
+**Create record**
 ```bash
 curl -X POST http://localhost:3000/records \
   -H "Content-Type: application/json" \
   -b cookies.txt \
-  -d '{"userId":"a0000001-0000-4000-8000-000000000001","carId":"b0000001-0000-4000-8000-000000000001","trackId":"c0000001-0000-4000-8000-000000000001","lapTime":90.5,"date":"2026-03-08"}'
+  -d '{"userId":"usr001","carId":"crs001","trackId":"trk001","lapTime":90.5,"date":"2026-03-08"}'
 ```
 
-**List tracks**
+**Update record** (e.g. fix lap time)
+```bash
+curl -X PUT http://localhost:3000/records/rcd001 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"lapTime":91.0,"date":"2026-03-09"}'
+```
+
+**Delete record**
+```bash
+curl -X DELETE http://localhost:3000/records/rcd010 -b cookies.txt
+```
+
+---
+
+### Quick list commands
 
 ```bash
+curl -b cookies.txt http://localhost:3000/users
+curl -b cookies.txt http://localhost:3000/cars
 curl -b cookies.txt http://localhost:3000/tracks
-```
-
-**List records**
-
-```bash
 curl -b cookies.txt http://localhost:3000/records
 ```
 
@@ -158,7 +283,7 @@ Validation errors return a JSON body with `error`, `message`, and optional `deta
 - **5 tracks**
 - **10 records** (user + car + track + lapTime + date)
 
-IDs in seed data are fixed UUIDs so reset is deterministic and tests can rely on stable IDs.
+IDs in seed data are fixed (e.g. usr001, crs001, trk001, rcd001) so reset is deterministic and tests can rely on stable IDs.
 
 ---
 

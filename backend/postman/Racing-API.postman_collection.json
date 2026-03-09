@@ -1,0 +1,221 @@
+{
+  "info": {
+    "name": "Racing API",
+    "description": "Racing platform API – users, cars, tracks, records. Login first, then use other requests (cookies are sent automatically).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"
+            },
+            "url": "{{baseUrl}}/login",
+            "description": "Login to get a session cookie. After this, other requests will send the cookie automatically."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/logout",
+            "description": "Clears the session cookie."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reset",
+      "item": [
+        {
+          "name": "Reset all data",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/reset",
+            "description": "Resets in-memory data to seed state (3 users, 5 cars, 5 tracks, 10 records). No auth required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "List users", "request": { "method": "GET", "url": "{{baseUrl}}/users" } },
+        {
+          "name": "Get user by id (admin)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/14282214-aa0b-45e5-9b11-80e60beaf2df" }
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"secret\",\n  \"email\": \"new@racing.local\"\n}"
+            },
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Update user (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"updated@racing.local\"\n}" },
+            "url": "{{baseUrl}}/users/14282214-aa0b-45e5-9b11-80e60beaf2df"
+          }
+        },
+        {
+          "name": "Delete user (bob)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/8e2a5c7d-91f3-4c28-b4d7-3f9a1b2c5d02"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cars",
+      "item": [
+        { "name": "List cars", "request": { "method": "GET", "url": "{{baseUrl}}/cars" } },
+        {
+          "name": "Get car by id (Thunder)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cars/5b8c3f21-7a64-4fd9-9e20-1c2d3e4f5a11" }
+        },
+        {
+          "name": "Get cars by user (admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cars/by-user/14282214-aa0b-45e5-9b11-80e60beaf2df"
+          }
+        },
+        {
+          "name": "Get cars by name (Thunder)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cars/by-name/Thunder" }
+        },
+        {
+          "name": "Get cars by model (GT-X)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cars/by-model/GT-X" }
+        },
+        {
+          "name": "Create car",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"14282214-aa0b-45e5-9b11-80e60beaf2df\",\n  \"name\": \"Rocket\",\n  \"model\": \"X1\",\n  \"year\": 2025\n}"
+            },
+            "url": "{{baseUrl}}/cars"
+          }
+        },
+        {
+          "name": "Update car (Thunder)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Thunder II\",\n  \"year\": 2025\n}" },
+            "url": "{{baseUrl}}/cars/5b8c3f21-7a64-4fd9-9e20-1c2d3e4f5a11"
+          }
+        },
+        {
+          "name": "Delete car (Flash)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/cars/c1d2e3f4-a5b6-4c7d-9e0f-5a6b7c8d9e55"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracks",
+      "item": [
+        { "name": "List tracks", "request": { "method": "GET", "url": "{{baseUrl}}/tracks" } },
+        {
+          "name": "Get track by id (Silverstone)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tracks/0a1b2c3d-4e5f-4678-9a0b-6c7d8e9f0011" }
+        },
+        {
+          "name": "Create track",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Brands Hatch\",\n  \"country\": \"UK\",\n  \"lengthKm\": 3.908\n}"
+            },
+            "url": "{{baseUrl}}/tracks"
+          }
+        },
+        {
+          "name": "Update track (Silverstone)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"lengthKm\": 5.9\n}" },
+            "url": "{{baseUrl}}/tracks/0a1b2c3d-4e5f-4678-9a0b-6c7d8e9f0011"
+          }
+        },
+        {
+          "name": "Delete track (Laguna Seca)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/tracks/4e5f6071-8293-4a48-9a5b-ad1e2f304455"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Records",
+      "item": [
+        { "name": "List records", "request": { "method": "GET", "url": "{{baseUrl}}/records" } },
+        {
+          "name": "Get record by id (first seed)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/records/51a2b3c4-d5e6-4789-8a9b-0c1d2e3f4001"
+          }
+        },
+        {
+          "name": "Create record",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"14282214-aa0b-45e5-9b11-80e60beaf2df\",\n  \"carId\": \"5b8c3f21-7a64-4fd9-9e20-1c2d3e4f5a11\",\n  \"trackId\": \"0a1b2c3d-4e5f-4678-9a0b-6c7d8e9f0011\",\n  \"lapTime\": 90.5,\n  \"date\": \"2026-03-08\"\n}"
+            },
+            "url": "{{baseUrl}}/records"
+          }
+        },
+        {
+          "name": "Update record (first seed)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"lapTime\": 91.0,\n  \"date\": \"2026-03-09\"\n}" },
+            "url": "{{baseUrl}}/records/51a2b3c4-d5e6-4789-8a9b-0c1d2e3f4001"
+          }
+        },
+        {
+          "name": "Delete record (last seed)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/records/51a2b3c4-d5e6-4789-8a9b-0c1d2e3f4010"
+          }
+        }
+      ]
+    }
+  ]
+}

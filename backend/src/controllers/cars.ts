@@ -4,8 +4,18 @@ import { store } from "../data/store.js";
 import { sendValidationError, validateRequired, validateTypes } from "../middleware/validation.js";
 import type { Car } from "../models/types.js";
 
+function toCarResponse(car: Car) {
+  return {
+    id: car.id,
+    userId: car.userId,
+    name: car.name,
+    model: car.model,
+    year: car.year,
+  };
+}
+
 export function list(_req: Request, res: Response): void {
-  const cars = carsService.getAllCars();
+  const cars = carsService.getAllCars().map(toCarResponse);
   res.status(200).json(cars);
 }
 
@@ -16,7 +26,7 @@ export function getById(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Car with id '${id}' not found` });
     return;
   }
-  res.status(200).json(car);
+  res.status(200).json(toCarResponse(car));
 }
 
 export function create(req: Request, res: Response): void {
@@ -42,7 +52,7 @@ export function create(req: Request, res: Response): void {
   }
   try {
     const car = carsService.createCar(req.body as Omit<Car, "id">);
-    res.status(201).json(car);
+    res.status(201).json(toCarResponse(car));
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error", message: "Failed to create car" });
   }
@@ -70,7 +80,7 @@ export function update(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Car with id '${id}' not found` });
     return;
   }
-  res.status(200).json(car);
+  res.status(200).json(toCarResponse(car));
 }
 
 export function remove(req: Request, res: Response): void {
@@ -81,4 +91,22 @@ export function remove(req: Request, res: Response): void {
     return;
   }
   res.status(200).json({ message: "Car deleted successfully" });
+}
+
+export function getByUserId(req: Request, res: Response): void {
+  const { userId } = req.params;
+  const cars = carsService.getAllCars().filter((c) => c.userId === userId).map(toCarResponse);
+  res.status(200).json(cars);
+}
+
+export function getByName(req: Request, res: Response): void {
+  const { name } = req.params;
+  const cars = carsService.getAllCars().filter((c) => c.name === name).map(toCarResponse);
+  res.status(200).json(cars);
+}
+
+export function getByModel(req: Request, res: Response): void {
+  const { model } = req.params;
+  const cars = carsService.getAllCars().filter((c) => c.model === model).map(toCarResponse);
+  res.status(200).json(cars);
 }

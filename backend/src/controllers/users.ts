@@ -4,8 +4,12 @@ import { sendValidationError, validateRequired, validateTypes } from "../middlew
 import type { User } from "../models/types.js";
 
 function toPublicUser(u: User): Omit<User, "password"> {
-  const { password: _, ...rest } = u;
-  return rest;
+  // Always keep response field order: id, username, email
+  return {
+    id: u.id,
+    username: u.username,
+    email: u.email,
+  };
 }
 
 export function list(_req: Request, res: Response): void {
@@ -38,6 +42,14 @@ export function create(req: Request, res: Response): void {
     sendValidationError(res, typeErrors);
     return;
   }
+  const { email } = req.body as { email: string };
+  if (usersService.getUserByEmail(email)) {
+    res.status(409).json({
+      error: "Conflict",
+      message: "A user with this email already exists",
+    });
+    return;
+  }
   try {
     const user = usersService.createUser(req.body as Omit<User, "id">);
     res.status(201).json(toPublicUser(user));
@@ -48,6 +60,13 @@ export function create(req: Request, res: Response): void {
 
 export function update(req: Request, res: Response): void {
   const { id } = req.params;
+  if ((req.body as Record<string, unknown>).id !== undefined) {
+    res.status(403).json({
+      error: "Forbidden",
+      message: "User id cannot be changed",
+    });
+    return;
+  }
   const typeErrors = validateTypes(req.body as Record<string, unknown>, [
     { field: "username", type: "string", required: false },
     { field: "password", type: "string", required: false },
@@ -57,7 +76,18 @@ export function update(req: Request, res: Response): void {
     sendValidationError(res, typeErrors);
     return;
   }
-  const user = usersService.updateUser(id, req.body as Partial<Omit<User, "id">>);
+  const body = req.body as Partial<Omit<User, "id">>;
+  if (body.email !== undefined) {
+    const existingByEmail = usersService.getUserByEmail(body.email);
+    if (existingByEmail && existingByEmail.id !== id) {
+      res.status(409).json({
+        error: "Conflict",
+        message: "A user with this email already exists",
+      });
+      return;
+    }
+  }
+  const user = usersService.updateUser(id, body);
   if (!user) {
     res.status(404).json({ error: "Not Found", message: `User with id '${id}' not found` });
     return;

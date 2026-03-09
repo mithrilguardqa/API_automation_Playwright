@@ -1,0 +1,331 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Racing API",
+    "description": "Stable API for Playwright testing – users, cars, tracks, lap records. **Login first** (Auth → Login) so the session cookie is set, then try other endpoints.",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "admin" },
+                  "password": { "type": "string", "example": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Sets session cookie" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout",
+        "tags": ["Auth"],
+        "responses": { "200": { "description": "Cookie cleared" } }
+      }
+    },
+    "/reset": {
+      "post": {
+        "summary": "Reset all data",
+        "description": "Resets to seed state. No auth required.",
+        "tags": ["Reset"],
+        "responses": { "200": { "description": "Data reset" } }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "List users",
+        "tags": ["Users"],
+        "responses": { "200": { "description": "Array of users" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "post": {
+        "summary": "Create user",
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "email"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "email": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by id",
+        "tags": ["Users"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "User" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "put": {
+        "summary": "Update user",
+        "tags": ["Users"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "email": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "delete": {
+        "summary": "Delete user",
+        "tags": ["Users"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/cars": {
+      "get": {
+        "summary": "List cars",
+        "tags": ["Cars"],
+        "responses": { "200": { "description": "Array of cars" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "post": {
+        "summary": "Create car",
+        "tags": ["Cars"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "name", "model", "year"],
+                "properties": {
+                  "userId": { "type": "string", "example": "usr001" },
+                  "name": { "type": "string" },
+                  "model": { "type": "string" },
+                  "year": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/cars/{id}": {
+      "get": {
+        "summary": "Get car by id",
+        "tags": ["Cars"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Car" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "put": {
+        "summary": "Update car",
+        "tags": ["Cars"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": { "type": "string" },
+                  "name": { "type": "string" },
+                  "model": { "type": "string" },
+                  "year": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "delete": {
+        "summary": "Delete car",
+        "tags": ["Cars"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/tracks": {
+      "get": {
+        "summary": "List tracks",
+        "tags": ["Tracks"],
+        "responses": { "200": { "description": "Array of tracks" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "post": {
+        "summary": "Create track",
+        "tags": ["Tracks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "country", "lengthKm"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "country": { "type": "string" },
+                  "lengthKm": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/tracks/{id}": {
+      "get": {
+        "summary": "Get track by id",
+        "tags": ["Tracks"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Track" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "put": {
+        "summary": "Update track",
+        "tags": ["Tracks"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "country": { "type": "string" },
+                  "lengthKm": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "delete": {
+        "summary": "Delete track",
+        "tags": ["Tracks"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/records": {
+      "get": {
+        "summary": "List records",
+        "tags": ["Records"],
+        "responses": { "200": { "description": "Array of lap records" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "post": {
+        "summary": "Create record",
+        "tags": ["Records"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "carId", "trackId", "lapTime", "date"],
+                "properties": {
+                  "userId": { "type": "string", "example": "usr001" },
+                  "carId": { "type": "string", "example": "crs001" },
+                  "trackId": { "type": "string", "example": "trk001" },
+                  "lapTime": { "type": "number" },
+                  "date": { "type": "string", "example": "2026-03-08" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    },
+    "/records/{id}": {
+      "get": {
+        "summary": "Get record by id",
+        "tags": ["Records"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Record" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "put": {
+        "summary": "Update record",
+        "tags": ["Records"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": { "type": "string" },
+                  "carId": { "type": "string" },
+                  "trackId": { "type": "string" },
+                  "lapTime": { "type": "number" },
+                  "date": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "sessionCookie": [] }]
+      },
+      "delete": {
+        "summary": "Delete record",
+        "tags": ["Records"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "sessionCookie": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session",
+        "description": "Login via POST /login first; the browser will send the session cookie automatically."
+      }
+    }
+  }
+}

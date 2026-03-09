@@ -3,8 +3,17 @@ import * as tracksService from "../services/tracks.js";
 import { sendValidationError, validateRequired, validateTypes } from "../middleware/validation.js";
 import type { Track } from "../models/types.js";
 
+function toTrackResponse(track: Track) {
+  return {
+    id: track.id,
+    name: track.name,
+    country: track.country,
+    lengthKm: track.lengthKm,
+  };
+}
+
 export function list(_req: Request, res: Response): void {
-  const tracks = tracksService.getAllTracks();
+  const tracks = tracksService.getAllTracks().map(toTrackResponse);
   res.status(200).json(tracks);
 }
 
@@ -15,7 +24,7 @@ export function getById(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Track with id '${id}' not found` });
     return;
   }
-  res.status(200).json(track);
+  res.status(200).json(toTrackResponse(track));
 }
 
 export function create(req: Request, res: Response): void {
@@ -35,7 +44,7 @@ export function create(req: Request, res: Response): void {
   }
   try {
     const track = tracksService.createTrack(req.body as Omit<Track, "id">);
-    res.status(201).json(track);
+    res.status(201).json(toTrackResponse(track));
   } catch (err) {
     res.status(500).json({ error: "Internal Server Error", message: "Failed to create track" });
   }
@@ -57,7 +66,7 @@ export function update(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Track with id '${id}' not found` });
     return;
   }
-  res.status(200).json(track);
+  res.status(200).json(toTrackResponse(track));
 }
 
 export function remove(req: Request, res: Response): void {

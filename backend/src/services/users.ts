@@ -10,9 +10,22 @@ export function getUserById(id: string): User | undefined {
   return store.users.get(id);
 }
 
+export function getUserByEmail(email: string): User | undefined {
+  const normalized = email.trim().toLowerCase();
+  for (const user of store.users.values()) {
+    if (user.email.trim().toLowerCase() === normalized) return user;
+  }
+  return undefined;
+}
+
 export function createUser(data: Omit<User, "id">): User {
   const id = uuidv4();
-  const user: User = { ...data, id };
+  const user: User = {
+    id,
+    username: data.username,
+    password: data.password,
+    email: data.email,
+  };
   store.users.set(id, user);
   return user;
 }
@@ -20,7 +33,12 @@ export function createUser(data: Omit<User, "id">): User {
 export function updateUser(id: string, data: Partial<Omit<User, "id">>): User | undefined {
   const existing = store.users.get(id);
   if (!existing) return undefined;
-  const updated: User = { ...existing, ...data, id };
+  const updated: User = {
+    id,
+    username: data.username ?? existing.username,
+    password: data.password ?? existing.password,
+    email: data.email ?? existing.email,
+  };
   store.users.set(id, updated);
   return updated;
 }

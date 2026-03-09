@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 import fs from "node:fs";
 import path from "node:path";
 import { setStore } from "./data/store.js";
@@ -21,6 +22,11 @@ setStore(seedStore());
 
 app.use(express.json());
 app.use(cookieParser());
+
+// API docs (Swagger UI) – open http://localhost:3000/docs in browser
+const openapiPath = path.join(process.cwd(), "openapi.json");
+const openapi = JSON.parse(fs.readFileSync(openapiPath, "utf8"));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 // Public routes (no auth)
 app.use("/", authRoutes);
