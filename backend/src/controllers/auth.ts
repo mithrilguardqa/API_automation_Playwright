@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { findUserByCredentials, createSession, destroySession } from "../services/auth.js";
+import { findUserByCredentials, createSession, destroySession, getUserIdBySession } from "../services/auth.js";
 import { sendValidationError, validateRequired } from "../middleware/validation.js";
 
 const COOKIE_OPTIONS = {
@@ -28,9 +28,14 @@ export function login(req: Request, res: Response): void {
 
 export function logout(req: Request, res: Response): void {
   const sessionId = req.cookies?.session;
-  if (sessionId) {
-    destroySession(sessionId);
+  if (!sessionId || !getUserIdBySession(sessionId)) {
+    res.status(401).json({
+      error: "Unauthorized",
+      message: "User not logged in currently",
+    });
+    return;
   }
+  destroySession(sessionId);
   res.clearCookie("session", { path: "/", httpOnly: true });
   res.status(200).json({ message: "Logged out successfully" });
 }
