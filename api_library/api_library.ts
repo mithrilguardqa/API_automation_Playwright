@@ -49,11 +49,11 @@ export const loginRequest = async (
   username: string,
   password: string,
 ): Promise<APIResponse> => {
-  return baseRequest(request, "POST", EntryPoint.Login, {}, { username, password });
+  return baseRequest(request, "POST", EntryPoint.Login, {}, { username, password }, false);
 };
 
 export const logoutRequest = async (request: APIRequestContext): Promise<APIResponse> => {
-  return await baseRequest(request, "POST", EntryPoint.Logout);
+  return await baseRequest(request, "POST", EntryPoint.Logout, {}, undefined, false);
 };
 
 // GET requests
