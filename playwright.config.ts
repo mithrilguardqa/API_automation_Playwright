@@ -22,6 +22,7 @@ export default defineConfig({
     trace: "on-first-retry",
     ignoreHTTPSErrors: true,
     bypassCSP: true,
+    storageState: "./auth/auth.json",
     launchOptions: {
       args: ["--disable-web-security"],
     },

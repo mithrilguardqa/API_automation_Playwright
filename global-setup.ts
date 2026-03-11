@@ -1,18 +1,11 @@
 import { request } from "@playwright/test";
 import config from "./env.config";
-import fs from "fs";
-import path from "path";
+import { loginRequest } from "@apiLibrary/api_library";
 
 async function globalSetup() {
   const context = await request.newContext();
-  const response = await context.post(`${config.baseUrl}/auth`, {
-    data: { username: config.username, password: config.password },
-  });
-  const { token } = await response.json();
-
-  const authDir = path.resolve(__dirname, ".auth");
-  fs.mkdirSync(authDir, { recursive: true });
-  fs.writeFileSync(path.resolve(authDir, "auth-token.json"), JSON.stringify({ token }));
+  await loginRequest(context, config.username, config.password);
+  await context.storageState({ path: "auth/auth.json" });
 
   await context.dispose();
 }

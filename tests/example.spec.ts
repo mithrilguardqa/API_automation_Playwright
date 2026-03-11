@@ -1,11 +1,16 @@
+import { createUserRequest, getUsersRequest } from "@apiLibrary/api_library";
 import { test } from "@playwright/test";
 
 test("Example - get records after login", async ({ request }) => {
-  await request.post("/login", {
-    data: { username: "admin", password: "password" },
-  });
+  const users = await getUsersRequest(request);
+  console.log(users);
 
-  const response = await request.get("/records");
-  const responseBody = await response.json();
-  console.log(responseBody);
+  const newUser = {
+    username: "mithril",
+    password: "test123",
+    email: "mithril@mithrilguard.com",
+  };
+
+  const createdUser = await createUserRequest(request, newUser);
+  console.log(createdUser);
 });

@@ -1,9 +1,8 @@
 export enum EntryPoint {
   Login = "/login",
+  Logout = "/logout",
   Users = "/users",
-  Auth = "/auth",
-  Booking = "/booking",
   Cars = "/cars",
-  Pets = "/pets",
-  Products = "/products",
+  Tracks = "/tracks",
+  Records = "/records",
 }
