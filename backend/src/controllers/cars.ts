@@ -95,18 +95,51 @@ export function remove(req: Request, res: Response): void {
 
 export function getByUserId(req: Request, res: Response): void {
   const { userId } = req.params;
-  const cars = carsService.getAllCars().filter((c) => c.userId === userId).map(toCarResponse);
+  const cars = carsService
+    .getAllCars()
+    .filter((c) => c.userId === userId)
+    .map(toCarResponse);
+
+  if (cars.length === 0) {
+    res
+      .status(404)
+      .json({ error: "Not Found", message: `No cars found for userId '${userId}'` });
+    return;
+  }
+
   res.status(200).json(cars);
 }
 
 export function getByName(req: Request, res: Response): void {
   const { name } = req.params;
-  const cars = carsService.getAllCars().filter((c) => c.name === name).map(toCarResponse);
+  const cars = carsService
+    .getAllCars()
+    .filter((c) => c.name === name)
+    .map(toCarResponse);
+
+  if (cars.length === 0) {
+    res
+      .status(404)
+      .json({ error: "Not Found", message: `No cars found with name '${name}'` });
+    return;
+  }
+
   res.status(200).json(cars);
 }
 
 export function getByModel(req: Request, res: Response): void {
   const { model } = req.params;
-  const cars = carsService.getAllCars().filter((c) => c.model === model).map(toCarResponse);
+  const cars = carsService
+    .getAllCars()
+    .filter((c) => c.model === model)
+    .map(toCarResponse);
+
+  if (cars.length === 0) {
+    res
+      .status(404)
+      .json({ error: "Not Found", message: `No cars found with model '${model}'` });
+    return;
+  }
+
   res.status(200).json(cars);
 }
