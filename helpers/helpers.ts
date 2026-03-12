@@ -1,5 +1,15 @@
 import { ZodSchema } from "zod";
 
+export const randomString = (
+  length?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13,
+): string => {
+  let timestampString: number = Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000);
+
+  const validLength: number = length ? length : 13;
+
+  return timestampString.toString().slice(-validLength);
+};
+
 /**
  * Expects the response body to match the schema
  * @param responseBody - The response body to validate

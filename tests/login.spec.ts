@@ -1,8 +1,13 @@
-import { loginRequest, logoutRequest } from "@apiLibrary/api_library";
+import { loginRequest, logoutRequest } from "@apiLibrary/auth_requests";
 import config from "@env";
 import { expect, test } from "@playwright/test";
 import { expectToMatchSchema } from "helpers/helpers";
-import { loginErrorSchema, loginSuccessSchema, logoutErrorSchema, logoutSuccessSchema } from "schemas/auth.schemas";
+import {
+  loginErrorSchema,
+  loginSuccessSchema,
+  logoutErrorSchema,
+  logoutSuccessSchema,
+} from "schemas/auth.schemas";
 
 test.describe("Authentication tests suite", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
