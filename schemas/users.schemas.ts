@@ -12,6 +12,17 @@ const errorSchema = z.object({
   message: z.string().min(1),
 });
 
+const validationErrorSchema = z.object({
+  error: z.string().min(1),
+  message: z.string().min(1),
+  details: z.array(
+    z.object({
+      field: z.string().min(1),
+      message: z.string().min(1),
+    }),
+  ),
+});
+
 // Success schemas
 export const getUsersSuccessSchema = z.array(userSchema);
 
@@ -23,7 +34,10 @@ export const updateUserSuccessSchema = userSchema;
 
 export const deleteUserSuccessSchema = z.object({
   message: z.string().min(1),
+  id: z.string().min(1),
 });
 
 //Error schemas
 export const universalUserErrorSchema = errorSchema;
+
+export const userValidationErrorSchema = validationErrorSchema;

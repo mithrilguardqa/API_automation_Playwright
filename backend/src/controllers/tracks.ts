@@ -76,5 +76,5 @@ export function remove(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Track with id '${id}' not found` });
     return;
   }
-  res.status(200).json({ message: "Track deleted successfully" });
+  res.status(204).json({ message: "Track deleted successfully", id });
 }

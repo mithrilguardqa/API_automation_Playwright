@@ -20,3 +20,14 @@ export const logoutErrorSchema = z.object({
   error: z.string().min(1),
   message: z.string().min(1),
 });
+
+export const authValidationErrorSchema = z.object({
+  error: z.string().min(1),
+  message: z.string().min(1),
+  details: z.array(
+    z.object({
+      field: z.string().min(1),
+      message: z.string().min(1),
+    }),
+  ),
+});

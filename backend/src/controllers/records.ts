@@ -53,15 +53,15 @@ export function create(req: Request, res: Response): void {
   }
   const { userId, carId, trackId } = req.body as { userId: string; carId: string; trackId: string };
   if (!store.users.has(userId)) {
-    res.status(400).json({ error: "Bad Request", message: `User with id '${userId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `User with id '${userId}' not found` });
     return;
   }
   if (!store.cars.has(carId)) {
-    res.status(400).json({ error: "Bad Request", message: `Car with id '${carId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `Car with id '${carId}' not found` });
     return;
   }
   if (!store.tracks.has(trackId)) {
-    res.status(400).json({ error: "Bad Request", message: `Track with id '${trackId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `Track with id '${trackId}' not found` });
     return;
   }
   try {
@@ -87,15 +87,15 @@ export function update(req: Request, res: Response): void {
   }
   const body = req.body as Partial<Omit<LapRecord, "id">>;
   if (body.userId !== undefined && !store.users.has(body.userId)) {
-    res.status(400).json({ error: "Bad Request", message: `User with id '${body.userId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `User with id '${body.userId}' not found` });
     return;
   }
   if (body.carId !== undefined && !store.cars.has(body.carId)) {
-    res.status(400).json({ error: "Bad Request", message: `Car with id '${body.carId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `Car with id '${body.carId}' not found` });
     return;
   }
   if (body.trackId !== undefined && !store.tracks.has(body.trackId)) {
-    res.status(400).json({ error: "Bad Request", message: `Track with id '${body.trackId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `Track with id '${body.trackId}' not found` });
     return;
   }
   const record = recordsService.updateRecord(id, body);
@@ -113,5 +113,5 @@ export function remove(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Record with id '${id}' not found` });
     return;
   }
-  res.status(200).json({ message: "Record deleted successfully" });
+  res.status(204).json({ message: "Record deleted successfully", id });
 }

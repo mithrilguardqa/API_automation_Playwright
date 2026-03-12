@@ -102,5 +102,5 @@ export function remove(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `User with id '${id}' not found` });
     return;
   }
-  res.status(200).json({ message: "User deleted successfully" });
+  res.status(204).json({ message: "User deleted successfully", id });
 }

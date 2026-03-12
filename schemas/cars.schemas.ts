@@ -14,12 +14,25 @@ const errorSchema = z.object({
   message: z.string().min(1),
 });
 
+const validationErrorSchema = z.object({
+  error: z.string().min(1),
+  message: z.string().min(1),
+  details: z.array(
+    z.object({
+      field: z.string().min(1),
+      message: z.string().min(1),
+    }),
+  ),
+});
+
 // Success schemas
 export const getCarsSuccessSchema = z.array(carSchema);
 
 export const getCarByIdSuccessSchema = carSchema;
 
 export const getCarByUserIdSuccessSchema = z.array(carSchema);
+
+export const getCarsByNameSuccessSchema = z.array(carSchema);
 
 export const getCarsByModelSuccessSchema = z.array(carSchema);
 
@@ -29,7 +42,10 @@ export const updateCarSuccessSchema = carSchema;
 
 export const deleteCarSuccessSchema = z.object({
   message: z.string().min(1),
+  id: z.string().min(1),
 });
 
 //Error schemas
 export const universalCarErrorSchema = errorSchema;
+
+export const carValidationErrorSchema = validationErrorSchema;

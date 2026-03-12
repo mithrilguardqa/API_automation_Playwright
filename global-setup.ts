@@ -1,6 +1,6 @@
 import { request } from "@playwright/test";
 import config from "./env.config";
-import { loginRequest } from "@apiLibrary/api_library";
+import { loginRequest } from "@apiLibrary/auth_requests";
 
 async function globalSetup() {
   const context = await request.newContext();

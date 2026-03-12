@@ -47,7 +47,7 @@ export function create(req: Request, res: Response): void {
   }
   const { userId } = req.body as { userId: string };
   if (!store.users.has(userId)) {
-    res.status(400).json({ error: "Bad Request", message: `User with id '${userId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `User with id '${userId}' not found` });
     return;
   }
   try {
@@ -72,7 +72,7 @@ export function update(req: Request, res: Response): void {
   }
   const body = req.body as Partial<Omit<Car, "id">>;
   if (body.userId !== undefined && !store.users.has(body.userId)) {
-    res.status(400).json({ error: "Bad Request", message: `User with id '${body.userId}' not found` });
+    res.status(404).json({ error: "Not Found", message: `User with id '${body.userId}' not found` });
     return;
   }
   const car = carsService.updateCar(id, body);
@@ -90,7 +90,7 @@ export function remove(req: Request, res: Response): void {
     res.status(404).json({ error: "Not Found", message: `Car with id '${id}' not found` });
     return;
   }
-  res.status(200).json({ message: "Car deleted successfully" });
+  res.status(204).json({ message: "Car deleted successfully", id });
 }
 
 export function getByUserId(req: Request, res: Response): void {
