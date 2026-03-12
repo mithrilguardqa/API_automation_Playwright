@@ -87,28 +87,53 @@ npx playwright show-report
 
 ---
 
-## CI/CD Pipeline (Planned)
+## CI/CD Pipeline
+
+The test suite runs in GitHub Actions with Allure reporting and Slack notifications.
 
 ```mermaid
 graph LR
-    A[Push / PR] --> B[GitHub Actions]
-    B --> C[Playwright Tests]
-    C --> D[Allure Report]
-    D --> E[Slack Notification]
-
-    style A fill:#24292e,color:#fff
-    style B fill:#2088FF,color:#fff
-    style C fill:#2EAD33,color:#fff
-    style D fill:#E3522B,color:#fff
-    style E fill:#4A154B,color:#fff
+    A[Manual Dispatch] --> B[GitHub Actions]
+    B --> C[Build & Start Backend]
+    C --> D[Playwright Tests]
+    D --> E[Allure Report]
+    E --> F[Upload Artifacts]
+    F --> G[Slack Notification]
 ```
 
 | Component | Role |
 |-----------|------|
-| **GitHub Actions** | Trigger on push/PR, run test pipeline |
+| **GitHub Actions** | Manual trigger via `workflow_dispatch` |
 | **Playwright** | Execute the 37 API tests |
-| **Allure / Custom Report** | Generate rich test execution report |
-| **Slack Webhook** | Post results summary to team channel |
+| **Allure** | Generate rich test execution report (primary) |
+| **Playwright HTML** | Secondary report uploaded as artifact |
+| **Slack Webhook** | Post pass/fail summary with link to download report |
+
+### Running the Pipeline
+
+1. Go to **Actions** tab in GitHub
+2. Select **API Tests** workflow
+3. Click **Run workflow**
+
+### Setup Requirements
+
+Add a GitHub Actions secret named `SLACK_WEBHOOK_URL` with your [Slack Incoming Webhook](https://api.slack.com/messaging/webhooks) URL.
+
+### Local Allure Commands
+
+```bash
+# Run tests (generates allure-results/)
+npx playwright test
+
+# Generate the HTML report from results
+npm run allure:generate
+
+# Open the generated report in browser
+npm run allure:open
+
+# One-shot: generate temp report and open it
+npm run allure:serve
+```
 
 ---
 

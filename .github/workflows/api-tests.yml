@@ -1,0 +1,169 @@
+name: API Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    name: Run API Tests & Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+      - name: Start backend
+        run: npm start &
+        working-directory: backend
+
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend on port 3000..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000/docs > /dev/null 2>&1; then
+              echo "Backend is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30 — retrying in 1s..."
+            sleep 1
+          done
+          echo "Backend failed to start within 30s"
+          exit 1
+
+      - name: Create auth directory
+        run: mkdir -p auth
+
+      - name: Run Playwright tests
+        id: tests
+        continue-on-error: true
+        run: npx playwright test
+        env:
+          CI: "true"
+
+      - name: Generate Allure report
+        if: always()
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL secret not set — skipping notification"
+            exit 0
+          fi
+
+          SUMMARY_FILE="allure-report/widgets/summary.json"
+          if [ ! -f "$SUMMARY_FILE" ]; then
+            echo "Allure summary not found — sending fallback notification"
+            PASSED="?"
+            FAILED="?"
+            BROKEN="?"
+            SKIPPED="?"
+            TOTAL="?"
+            DURATION_DISPLAY="N/A"
+          else
+            PASSED=$(jq '.statistic.passed'  "$SUMMARY_FILE")
+            FAILED=$(jq '.statistic.failed'  "$SUMMARY_FILE")
+            BROKEN=$(jq '.statistic.broken'  "$SUMMARY_FILE")
+            SKIPPED=$(jq '.statistic.skipped' "$SUMMARY_FILE")
+            TOTAL=$(jq '.statistic.total'    "$SUMMARY_FILE")
+            DURATION_MS=$(jq '.time.duration' "$SUMMARY_FILE")
+            DURATION_S=$(( DURATION_MS / 1000 ))
+            DURATION_DISPLAY="${DURATION_S}s"
+          fi
+
+          if [ "$FAILED" = "0" ] && [ "$BROKEN" = "0" ]; then
+            STATUS_EMOJI="✅"
+            STATUS_TEXT="PASSED"
+          else
+            STATUS_EMOJI="❌"
+            STATUS_TEXT="FAILED"
+          fi
+
+          BRANCH="${GITHUB_REF_NAME}"
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "${STATUS_EMOJI} Racing Platform — API Tests [${STATUS_TEXT}]"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  { "type": "mrkdwn", "text": "*Passed:*  ${PASSED}" },
+                  { "type": "mrkdwn", "text": "*Failed:*  ${FAILED}" },
+                  { "type": "mrkdwn", "text": "*Broken:*  ${BROKEN}" },
+                  { "type": "mrkdwn", "text": "*Skipped:* ${SKIPPED}" },
+                  { "type": "mrkdwn", "text": "*Total:*   ${TOTAL}" },
+                  { "type": "mrkdwn", "text": "*Duration:* ${DURATION_DISPLAY}" }
+                ]
+              },
+              {
+                "type": "context",
+                "elements": [
+                  { "type": "mrkdwn", "text": "Branch: \`${BRANCH}\` | Commit: \`${SHORT_SHA}\`" }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "📊 View Run & Download Report" },
+                    "url": "${RUN_URL}"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+
+          curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
+
+          echo "Slack notification sent!"
