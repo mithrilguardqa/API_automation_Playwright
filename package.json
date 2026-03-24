@@ -8,10 +8,7 @@
     "clean-install": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + ; npm install",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
-    "test:report": "npx playwright test --reporter=html",
-    "allure:generate": "npx allure generate allure-results --clean -o allure-report",
-    "allure:open": "npx allure open allure-report",
-    "allure:serve": "npx allure serve allure-results"
+    "test:report": "npx playwright test --reporter=html"
   },
   "keywords": [],
   "license": "ISC",
@@ -29,9 +26,5 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
     "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "allure-commandline": "^2.37.0",
-    "allure-playwright": "^3.6.0"
   }
 }
