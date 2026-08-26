@@ -8,5 +8,6 @@ node_modules/
 /playwright/.auth/
 .auth/
 
-# auth
-auth/auth.json
+# auth / session artifacts generated at runtime
+auth/
+cookies.txt
