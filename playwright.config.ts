@@ -24,12 +24,7 @@ export default defineConfig({
   use: {
     baseURL: config.baseUrl,
     trace: "on-first-retry",
-    ignoreHTTPSErrors: true,
-    bypassCSP: true,
     storageState: "./auth/auth.json",
-    launchOptions: {
-      args: ["--disable-web-security"],
-    },
   },
   projects: [
     {
