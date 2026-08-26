@@ -58,18 +58,6 @@ jobs:
         env:
           CI: "true"
 
-      - name: Generate Allure report
-        if: always()
-        run: npx allure generate allure-results --clean -o allure-report
-
-      - name: Upload Allure report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report/
-          retention-days: 30
-
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
@@ -88,27 +76,27 @@ jobs:
             exit 0
           fi
 
-          SUMMARY_FILE="allure-report/widgets/summary.json"
+          SUMMARY_FILE="test-results/results.json"
           if [ ! -f "$SUMMARY_FILE" ]; then
-            echo "Allure summary not found — sending fallback notification"
+            echo "Playwright results not found — sending fallback notification"
             PASSED="?"
             FAILED="?"
-            BROKEN="?"
+            FLAKY="?"
             SKIPPED="?"
             TOTAL="?"
             DURATION_DISPLAY="N/A"
           else
-            PASSED=$(jq '.statistic.passed'  "$SUMMARY_FILE")
-            FAILED=$(jq '.statistic.failed'  "$SUMMARY_FILE")
-            BROKEN=$(jq '.statistic.broken'  "$SUMMARY_FILE")
-            SKIPPED=$(jq '.statistic.skipped' "$SUMMARY_FILE")
-            TOTAL=$(jq '.statistic.total'    "$SUMMARY_FILE")
-            DURATION_MS=$(jq '.time.duration' "$SUMMARY_FILE")
+            PASSED=$(jq '.stats.expected'    "$SUMMARY_FILE")
+            FAILED=$(jq '.stats.unexpected'  "$SUMMARY_FILE")
+            FLAKY=$(jq '.stats.flaky'        "$SUMMARY_FILE")
+            SKIPPED=$(jq '.stats.skipped'    "$SUMMARY_FILE")
+            TOTAL=$(jq '.stats.expected + .stats.unexpected + .stats.flaky + .stats.skipped' "$SUMMARY_FILE")
+            DURATION_MS=$(jq '.stats.duration | floor' "$SUMMARY_FILE")
             DURATION_S=$(( DURATION_MS / 1000 ))
             DURATION_DISPLAY="${DURATION_S}s"
           fi
 
-          if [ "$FAILED" = "0" ] && [ "$BROKEN" = "0" ]; then
+          if [ "$FAILED" = "0" ]; then
             STATUS_EMOJI="✅"
             STATUS_TEXT="PASSED"
           else
@@ -135,7 +123,7 @@ jobs:
                 "fields": [
                   { "type": "mrkdwn", "text": "*Passed:*  ${PASSED}" },
                   { "type": "mrkdwn", "text": "*Failed:*  ${FAILED}" },
-                  { "type": "mrkdwn", "text": "*Broken:*  ${BROKEN}" },
+                  { "type": "mrkdwn", "text": "*Flaky:*   ${FLAKY}" },
                   { "type": "mrkdwn", "text": "*Skipped:* ${SKIPPED}" },
                   { "type": "mrkdwn", "text": "*Total:*   ${TOTAL}" },
                   { "type": "mrkdwn", "text": "*Duration:* ${DURATION_DISPLAY}" }
